@@ -47,23 +47,6 @@ def logoutUser(request):
     return redirect('home')
 
 
-def registerPage(request):
-    form = MyUserCreationForm()
-
-    if request.method == 'POST':
-        form = MyUserCreationForm(request.POST)
-        if form.is_valid():
-            user = form.save(commit=False)
-            user.username = user.username.lower()
-            user.save()
-            login(request, user)
-            return redirect('home')
-        else:
-            messages.error(request, 'An error occurred during registration')
-
-    return render(request, 'base/login_register.html', {'form': form})
-
-
 def home(request):
     q = request.GET.get('q') if request.GET.get('q') != None else ''
 
@@ -100,16 +83,6 @@ def room(request, pk):
     context = {'room': room, 'room_messages': room_messages,
                'participants': participants}
     return render(request, 'base/room.html', context)
-
-
-def userProfile(request, pk):
-    user = User.objects.get(id=pk)
-    rooms = user.room_set.all()
-    room_messages = user.message_set.all()
-    topics = Topic.objects.all()
-    context = {'user': user, 'rooms': rooms,
-               'room_messages': room_messages, 'topics': topics}
-    return render(request, 'base/profile.html', context)
 
 
 @login_required(login_url='login')
@@ -197,6 +170,31 @@ def topicsPage(request):
     q = request.GET.get('q') if request.GET.get('q') != None else ''
     topics = Topic.objects.filter(name__icontains=q)
     return render(request, 'base/topics.html', {'topics': topics})
+
+def registerPage(request):
+    form = MyUserCreationForm()
+
+    if request.method == 'POST':
+        form = MyUserCreationForm(request.POST)
+        if form.is_valid():
+            user = form.save(commit=False)
+            user.username = user.username.lower()
+            user.save()
+            login(request, user)
+            return redirect('home')
+        else:
+            messages.error(request, 'An error occurred during registration')
+
+    return render(request, 'base/login_register.html', {'form': form})
+
+def userProfile(request, pk):
+    user = User.objects.get(id=pk)
+    rooms = user.room_set.all()
+    room_messages = user.message_set.all()
+    topics = Topic.objects.all()
+    context = {'user': user, 'rooms': rooms,
+               'room_messages': room_messages, 'topics': topics}
+    return render(request, 'base/profile.html', context)
 
 
 def activityPage(request):
